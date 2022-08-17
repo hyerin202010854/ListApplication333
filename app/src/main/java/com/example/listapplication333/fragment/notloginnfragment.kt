@@ -77,6 +77,8 @@ class notloginnfragment : Fragment() {
             .build()
 
 
+
+
         btn_googleSignIn.setOnClickListener {
             googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
             val signInIntent = googleSignInClient!!.signInIntent
