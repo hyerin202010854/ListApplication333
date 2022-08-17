@@ -21,10 +21,18 @@
         android:id="@+id/floginfragment"
         android:name="com.example.listapplication333.fragment.floginfragment"
         android:label="fragment_floginfragment"
-        tools:layout="@layout/fragment_floginfragment" />
+        tools:layout="@layout/fragment_floginfragment" >
+        <action
+            android:id="@+id/action_floginfragment_to_mainfragment"
+            app:destination="@id/mainfragment" />
+    </fragment>
     <fragment
         android:id="@+id/notloginnfragment"
         android:name="com.example.listapplication333.fragment.notloginnfragment"
         android:label="fragment_notloginnfragment"
-        tools:layout="@layout/fragment_notloginnfragment" />
+        tools:layout="@layout/fragment_notloginnfragment" >
+        <action
+            android:id="@+id/action_notloginnfragment_to_mainfragment"
+            app:destination="@id/mainfragment" />
+    </fragment>
 </navigation>

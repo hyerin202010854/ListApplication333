@@ -36,6 +36,9 @@ class Mainfragment : Fragment() {
     }
 
 
+
+
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -51,7 +54,7 @@ class Mainfragment : Fragment() {
         navController = Navigation.findNavController(view)
 
         btn_login.setOnClickListener {
-            navController.navigate(R.id.action_mainfragment_to_floginfragment)
+            navController.navigate(R.id.action_mainfragment_to_notloginnfragment)
         }
 
     }
