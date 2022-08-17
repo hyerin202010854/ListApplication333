@@ -11,12 +11,14 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.listapplication333.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.ktx.Firebase
-import kotlinx.android.synthetic.main.fragment_mainfragment.*
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.android.synthetic.main.fragment_notloginnfragment.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -76,6 +78,10 @@ class notloginnfragment : Fragment() {
             .requestEmail()
             .build()
 
+        googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
+
+        firebaseAuth = FirebaseAuth.getInstance()
+
 
 
 
@@ -90,6 +96,65 @@ class notloginnfragment : Fragment() {
 
 
     }
+/*
+    public override fun onStart() {
+        super.onStart()
+        val account = GoogleSignIn.getLastSignedInAccount(requireContext())
+        if(account!==null){
+            toMainActivity(firebaseAuth.currentUser)
+        }
+    }
+
+ */
+
+   /* override fun onDestroy() {
+        super.onDestroy()
+    }*/
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (requestCode == RC_SIGN_IN) {
+            val task = GoogleSignIn.getSignedInAccountFromIntent(data)
+            try {
+                val account = task.getResult(ApiException::class.java)!!
+                firebaseAuthWithGoogle(account!!)
+            }catch (e: ApiException) {
+                Log.w("LoginActivity", "Google sign in failed", e)
+
+            }
+        }
+    }
+
+    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
+        val credentical = GoogleAuthProvider.getCredential(acct.idToken, null)
+        firebaseAuth.signInWithCredential(credentical)
+            .addOnCompleteListener(requireActivity()) { task ->
+                if (task.isSuccessful) {
+                    Log.w("LoginActivity", "firebaseAuthWithGoogle 성공", task.exception)
+                    toMainActivity(firebaseAuth?.currentUser)
+                }else {
+                    Log.w("LoginActivity", "firebaseAuthWithGoogle 실패", task.exception)
+                    Snackbar.make(View(requireContext()), "로그인 실패", Snackbar.LENGTH_SHORT).show()
+                }
+            }
+
+
+
+
+    }
+
+
+
+    fun toMainActivity(user:FirebaseUser?) {
+        if (user != null) {
+            startActivity(Intent(requireContext(), Mainfragment::class.java))
+
+        }
+    }
+
+
+
 
 
 
