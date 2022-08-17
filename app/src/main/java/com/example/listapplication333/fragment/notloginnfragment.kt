@@ -11,14 +11,17 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.listapplication333.R
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
+import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.ktx.firestoreSettings
+import com.google.firebase.ktx.Firebase
+import kotlinx.android.synthetic.*
+import kotlinx.android.synthetic.main.fragment_mainfragment.*
 import kotlinx.android.synthetic.main.fragment_notloginnfragment.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -36,7 +39,7 @@ class notloginnfragment : Fragment() {
     //firebase Auth
     private lateinit var firebaseAuth: FirebaseAuth
     //google client
-    private lateinit var googleSignInClient: GoogleSignInClient
+    private var googleSignInClient: GoogleSignInClient?=null
     lateinit var auth: FirebaseAuth
 
     //private const val TAG = "GoogleActivity"
@@ -54,6 +57,7 @@ class notloginnfragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
     }
 
     override fun onCreateView(
@@ -73,15 +77,12 @@ class notloginnfragment : Fragment() {
             navController.navigate(R.id.action_notloginnfragment_to_mainfragment)
         }
 
+        auth = FirebaseAuth.getInstance()
+
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("1041124689765-1klr031tiukpn1v53ci6go2eoi1eo8ut.apps.googleusercontent.com")
+            .requestIdToken(getString(R.string.default_web_client_id))
             .requestEmail()
             .build()
-
-        googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
-
-        firebaseAuth = FirebaseAuth.getInstance()
-
 
 
 
@@ -96,20 +97,40 @@ class notloginnfragment : Fragment() {
 
 
     }
-/*
-    public override fun onStart() {
-        super.onStart()
-        val account = GoogleSignIn.getLastSignedInAccount(requireContext())
-        if(account!==null){
-            toMainActivity(firebaseAuth.currentUser)
-        }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
     }
 
- */
 
-   /* override fun onDestroy() {
-        super.onDestroy()
-    }*/
+
+    private fun firebaseAuthWithGoogle(idT0ken: String) {
+        val credentical = GoogleAuthProvider.getCredential(idT0ken, null)
+        auth.signInWithCredential(credentical)
+            .addOnCompleteListener(requireActivity()) { task ->
+                if (task.isSuccessful) { //성공
+                    val user = auth.currentUser
+                    user?.let {
+                        val name = user.displayName
+                        val email = user.email
+                        val displayName = user.photoUrl
+                        val emailVerified = user.isEmailVerified
+                        val uid = user.uid
+                        Log.d("xxxx name", name.toString())
+                        Log.d("xxxx email", email.toString())
+                        Log.d("xxxx displayName", email.toString())
+                        toMainActivity(firebaseAuth?.currentUser)
+                    }
+                } else {//실패
+                    Log.d("xxxx", "signInWithCredentical:failure", task.exception)
+
+                }
+
+            }
+    }
+
+
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -118,33 +139,12 @@ class notloginnfragment : Fragment() {
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             try {
                 val account = task.getResult(ApiException::class.java)!!
-                firebaseAuthWithGoogle(account!!)
+                firestoreSettings { account.idToken }
             }catch (e: ApiException) {
-                Log.w("LoginActivity", "Google sign in failed", e)
 
             }
         }
     }
-
-    private fun firebaseAuthWithGoogle(acct: GoogleSignInAccount) {
-        val credentical = GoogleAuthProvider.getCredential(acct.idToken, null)
-        firebaseAuth.signInWithCredential(credentical)
-            .addOnCompleteListener(requireActivity()) { task ->
-                if (task.isSuccessful) {
-                    Log.w("LoginActivity", "firebaseAuthWithGoogle 성공", task.exception)
-                    toMainActivity(firebaseAuth?.currentUser)
-                }else {
-                    Log.w("LoginActivity", "firebaseAuthWithGoogle 실패", task.exception)
-                    Snackbar.make(View(requireContext()), "로그인 실패", Snackbar.LENGTH_SHORT).show()
-                }
-            }
-
-
-
-
-    }
-
-
 
     fun toMainActivity(user:FirebaseUser?) {
         if (user != null) {
@@ -152,8 +152,6 @@ class notloginnfragment : Fragment() {
 
         }
     }
-
-
 
 
 
@@ -180,3 +178,6 @@ class notloginnfragment : Fragment() {
             }
     }
 }
+
+
+
