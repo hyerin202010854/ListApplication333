@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.example.listapplication333.R
+import com.google.android.gms.auth.api.signin.GoogleSignIn
 import kotlinx.android.synthetic.main.fragment_mainfragment.*
 
 // TODO: Rename parameter arguments, choose names that match
@@ -53,11 +54,27 @@ class Mainfragment : Fragment() {
 
         navController = Navigation.findNavController(view)
 
-        btn_login.setOnClickListener {
-            navController.navigate(R.id.action_mainfragment_to_notloginnfragment)
+        val account = GoogleSignIn.getLastSignedInAccount(requireContext())
+        if(account!==null) { // 이미 로그인 되어있을시 로그아웃 창으로 이동
+
+            btn_login.setOnClickListener {
+                navController.navigate(R.id.action_mainfragment_to_floginfragment)
+            }
+
+        }
+        else {
+            btn_login.setOnClickListener {
+                navController.navigate(R.id.action_mainfragment_to_notloginnfragment)
+            }
+
         }
 
+
+
+
     }
+
+
 
 
     companion object {
